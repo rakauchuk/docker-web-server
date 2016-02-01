@@ -1,0 +1,72 @@
+php:
+  build: ./src/docker/etc/php-fpm
+  links:
+    - mysql
+    - node
+  ports:
+    - 9000:9000
+  volumes:
+    - ./src/docker/etc/php-fpm/php.ini-development:/usr/local/etc/php/php.ini
+    - ./www:/var/www/symfony
+    - ./www/var/logs:/var/www/symfony/var/logs
+
+nginx:
+  build: ./src/docker/etc/nginx
+  ports:
+    - 80:80
+  links:
+    - php
+    - node
+  volumes:
+    - ./logs/nginx/:/var/log/nginx
+  volumes_from:
+    - php
+
+node:
+  build: ./src/docker/etc/node
+  ports:
+     - 3000
+     - 8080
+     - 8888
+
+mysql:
+  image: mysql
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: symfony
+    MYSQL_USER: root
+    MYSQL_PASSWORD: root
+
+redis:
+  image: redis
+  ports:
+    - 6379:6379
+
+elasticsearch:
+  image: elasticsearch
+  ports:
+    - 9200:9200
+    - 9300:9300
+
+#mongo:
+#  image: mongo
+#  ports:
+#    - 27017:27017
+
+#memcached:
+#  image: memcached
+#  ports:
+#    - 11211:11211
+
+elk:
+  image: willdurand/elk
+  ports:
+    - 81:80
+  volumes:
+    - ./src/docker/etc/elk/logstash:/etc/logstash
+    - ./src/docker/etc/elk/logstash/patterns:/opt/logstash/patterns
+  volumes_from:
+    - php
+    - nginx

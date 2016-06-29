@@ -28,6 +28,8 @@ RUN apt-get update && apt-get install -my \
   php5-xdebug \
   php-apc
 
+RUN docker-php-ext-install pdo pdo_mysql
+
 RUN set -x \
     && curl -SL "http://www.xdebug.org/files/xdebug-$XDEBUG_VERSION.tgz" -o xdebug.tgz \
     && echo $XDEBUG_MD5 xdebug.tgz | md5sum -c - \
